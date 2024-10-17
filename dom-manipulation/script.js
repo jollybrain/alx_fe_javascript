@@ -5,14 +5,18 @@ let quotes = [
     { text: "Do not wait to strike till the iron is hot; but make it hot by striking.", category: "Action" }
 ];
 
-// Function to show a random quote
+// Function to display a random quote
 function showRandomQuote() {
-    const randomIndex = Math.floor(Math.random() * quotes.length);
-    const randomQuote = quotes[randomIndex];
+    if (quotes.length > 0) {  // Check if there are quotes available
+        const randomIndex = Math.floor(Math.random() * quotes.length);
+        const randomQuote = quotes[randomIndex];
 
-    // Update the quote display in the DOM
-    const quoteDisplay = document.getElementById('quoteDisplay');
-    quoteDisplay.textContent = `"${randomQuote.text}" - ${randomQuote.category}`;
+        // Update the quote display in the DOM
+        const quoteDisplay = document.getElementById('quoteDisplay');
+        quoteDisplay.textContent = `"${randomQuote.text}" - ${randomQuote.category}`;
+    } else {
+        alert("No quotes available to display."); // Edge case: when no quotes are available
+    }
 }
 
 // Function to add a new quote
@@ -20,15 +24,16 @@ function addQuote() {
     const quoteText = document.getElementById('newQuoteText').value.trim();
     const quoteCategory = document.getElementById('newQuoteCategory').value.trim();
 
+    // Check if both quote text and category are provided
     if (quoteText && quoteCategory) {
         // Add the new quote to the array
         quotes.push({ text: quoteText, category: quoteCategory });
 
-        // Clear the input fields
+        // Clear the input fields after adding the quote
         document.getElementById('newQuoteText').value = '';
         document.getElementById('newQuoteCategory').value = '';
 
-        // Optionally, show a message or refresh the quote
+        // Optionally, refresh the quote display or notify the user
         alert("New quote added!");
     } else {
         alert("Please fill in both the quote text and category.");
@@ -37,9 +42,19 @@ function addQuote() {
 
 // Attach event listeners after the DOM content is fully loaded
 document.addEventListener('DOMContentLoaded', function() {
-    // Set up the button to show a new random quote
-    document.getElementById('newQuote').addEventListener('click', showRandomQuote);
+    // Ensure the "Show New Quote" button exists and attach the event listener
+    const newQuoteButton = document.getElementById('newQuote');
+    if (newQuoteButton) {
+        newQuoteButton.addEventListener('click', showRandomQuote);
+    } else {
+        console.error("Button to show new quotes not found.");
+    }
 
-    // Set up the button to add a new quote
-    document.getElementById('addQuoteBtn').addEventListener('click', addQuote);
+    // Ensure the "Add Quote" button exists and attach the event listener for adding quotes
+    const addQuoteButton = document.getElementById('addQuoteBtn');
+    if (addQuoteButton) {
+        addQuoteButton.addEventListener('click', addQuote);
+    } else {
+        console.error("Button to add new quotes not found.");
+    }
 });
