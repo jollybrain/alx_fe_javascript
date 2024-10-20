@@ -51,6 +51,47 @@ function addQuote() {
     }
 }
 
+// Function to create and append the add quote form
+function createAddQuoteForm() {
+    console.log("Creating Add Quote Form"); // Checkpoint for creating the form
+
+    // Create form elements
+    const form = document.createElement('form');
+    const quoteInput = document.createElement('input');
+    const categoryInput = document.createElement('input');
+    const addButton = document.createElement('button');
+
+    // Set attributes for the quote input
+    quoteInput.setAttribute('id', 'newQuoteText');
+    quoteInput.setAttribute('placeholder', 'Enter quote text');
+    quoteInput.setAttribute('required', true); // Make it required
+
+    // Set attributes for the category input
+    categoryInput.setAttribute('id', 'newQuoteCategory');
+    categoryInput.setAttribute('placeholder', 'Enter quote category');
+    categoryInput.setAttribute('required', true); // Make it required
+
+    // Set attributes for the add button
+    addButton.setAttribute('id', 'addQuoteBtn');
+    addButton.textContent = 'Add Quote';
+    addButton.type = 'submit'; // Make it a submit button
+
+    // Append inputs and button to the form
+    form.appendChild(quoteInput);
+    form.appendChild(categoryInput);
+    form.appendChild(addButton);
+
+    // Append form to a designated area in the DOM
+    const formContainer = document.getElementById('formContainer'); // Make sure you have a container in your HTML
+    formContainer.appendChild(form);
+
+    // Prevent form submission to allow the addQuote function to handle it
+    form.addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+        addQuote(); // Call addQuote when the form is submitted
+    });
+}
+
 // Attach event listeners after the DOM content is fully loaded
 document.addEventListener('DOMContentLoaded', function() {
     console.log("Check for event listener on the 'Show New Quote' button"); // Checkpoint for event listener setup on the "Show New Quote" button
@@ -70,4 +111,7 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
         console.error("Button to add new quotes not found.");
     }
+
+    // Create the add quote form
+    createAddQuoteForm(); // Call the function to create the form
 });
