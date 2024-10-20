@@ -12,6 +12,13 @@
     <!-- Display area for quotes -->
     <div id="quoteDisplay">Press "Show New Quote" to get started.</div>
 
+    <!-- Category filter dropdown -->
+    <label for="categoryFilter">Filter by Category:</label>
+    <select id="categoryFilter" onchange="filterQuotes()">
+        <option value="all">All Categories</option>
+        <!-- Dynamically populated categories will be inserted here -->
+    </select>
+
     <!-- Button to show a new quote -->
     <button id="newQuote">Show New Quote</button>
 
