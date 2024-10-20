@@ -14,10 +14,10 @@ function showRandomQuote() {
         const randomIndex = Math.floor(Math.random() * quotes.length);
         const randomQuote = quotes[randomIndex];
 
-        // Update the quote display in the DOM
+        // Update the quote display in the DOM using innerHTML
         console.log("Check for logic to update the DOM with selected quote"); // Checkpoint for DOM update logic
         const quoteDisplay = document.getElementById('quoteDisplay');
-        quoteDisplay.textContent = `"${randomQuote.text}" - ${randomQuote.category}`;
+        quoteDisplay.innerHTML = `<p>"${randomQuote.text}"</p><p>- ${randomQuote.category}</p>`; // Use innerHTML to allow for HTML formatting
     } else {
         alert("No quotes available to display."); // Edge case: when no quotes are available
     }
@@ -43,6 +43,9 @@ function addQuote() {
         // Optionally, refresh the quote display or notify the user
         alert("New quote added!");
         console.log("Check for logic to update the DOM after adding a new quote"); // Checkpoint for DOM update after adding quote
+        // Optionally, you can use innerHTML to refresh the random quote
+        const quoteDisplay = document.getElementById('quoteDisplay');
+        quoteDisplay.innerHTML = `<p>"${quoteText}"</p><p>- ${quoteCategory}</p>`; // Display the newly added quote using innerHTML
     } else {
         alert("Please fill in both the quote text and category.");
     }
