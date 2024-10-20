@@ -23,6 +23,28 @@ async function fetchQuotesFromServer() {
     }
 }
 
+// Function to send new quotes to the server
+async function sendQuoteToServer(quote) {
+    try {
+        const response = await fetch('https://jsonplaceholder.typicode.com/posts', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json' // Specify the content type as JSON
+            },
+            body: JSON.stringify(quote) // Send the quote as a JSON string
+        });
+        
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        
+        const result = await response.json();
+        console.log('Quote successfully sent to server:', result);
+    } catch (error) {
+        console.error('Error sending quote to server:', error);
+    }
+}
+
 // Function to display quotes based on the current filter
 function displayQuotes(filteredQuotes) {
     const quoteDisplay = document.getElementById('quoteDisplay');
@@ -127,18 +149,24 @@ function showRandomQuote() {
 }
 
 // Function to add a new quote
-function addQuote() {
+async function addQuote() {
     const quoteText = document.getElementById('newQuoteText').value.trim();
     const quoteCategory = document.getElementById('newQuoteCategory').value.trim();
 
     // Check if both quote text and category are provided
     if (quoteText && quoteCategory) {
+        // Create the new quote object
+        const newQuote = { text: quoteText, category: quoteCategory };
+
         // Add the new quote to the array
-        quotes.push({ text: quoteText, category: quoteCategory });
-        
+        quotes.push(newQuote);
+
         // Save updated quotes to local storage
         saveQuotes();
-        
+
+        // Send the new quote to the server
+        await sendQuoteToServer(newQuote); // Call to send the quote to the server
+
         // Populate categories again after adding a new quote
         populateCategories();
 
@@ -206,28 +234,34 @@ function exportQuotes() {
     a.href = url;
     a.download = 'quotes.json';
     document.body.appendChild(a);
-    a.click(); // Simulate click
-    document.body.removeChild(a); // Remove the anchor
+    a.click(); // Trigger the download
+    document.body.removeChild(a); // Remove the anchor element
 }
 
 // Function to import quotes from a JSON file
 function importFromJsonFile(event) {
-    const fileReader = new FileReader();
-    fileReader.onload = function(event) {
-        const importedQuotes = JSON.parse(event.target.result);
-        quotes.push(...importedQuotes); // Add imported quotes to the array
-        saveQuotes(); // Save updated quotes to local storage
-
-        // Populate categories after importing quotes
-        populateCategories();
-
-        alert('Quotes imported successfully!');
-    };
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const importedQuotes = JSON.parse(e.target.result);
+                quotes = quotes.concat(importedQuotes); // Merge with existing quotes
+                saveQuotes(); // Save merged quotes to local storage
+                populateCategories(); // Refresh categories
+                displayQuotes(quotes); // Update displayed quotes
+                alert("Quotes imported successfully!");
+            } catch (error) {
+                alert("Error importing quotes: " + error.message);
+            }
+        };
+        reader.readAsText(file);
+    }
 }
 
-// Attach event listeners after the DOM content is fully loaded
+// Document ready event
 document.addEventListener('DOMContentLoaded', function() {
-    // Ensure the "Show New Quote" button exists and attach the event listener
+    // Attach event listeners
     const newQuoteButton = document.getElementById('newQuoteButton');
     if (newQuoteButton) {
         newQuoteButton.addEventListener('click', showRandomQuote);
