@@ -81,7 +81,17 @@ async function syncQuotesWithServer() {
     displayQuotes(quotes); // Update displayed quotes
 
     // Notify user about the sync
-    alert("Quotes have been synced with the server!");
+    displaySyncNotification("Quotes synced with server!"); // Show sync notification
+}
+
+// Function to display sync notification
+function displaySyncNotification(message) {
+    const notificationElement = document.getElementById('syncNotification');
+    notificationElement.textContent = message; // Set notification message
+    notificationElement.style.display = 'block'; // Show notification
+    setTimeout(() => {
+        notificationElement.style.display = 'none'; // Hide notification after 3 seconds
+    }, 3000);
 }
 
 // Function to periodically sync quotes with the server
@@ -225,14 +235,11 @@ function createAddQuoteForm() {
 
 // Function to export quotes as a JSON file
 function exportQuotes() {
-    const dataStr = JSON.stringify(quotes, null, 2); // Convert quotes array to JSON string
-    const blob = new Blob([dataStr], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify(quotes, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
-
-    // Create a temporary anchor element to trigger download
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'quotes.json';
+    a.download = 'quotes.json'; // Set the file name
     document.body.appendChild(a);
     a.click(); // Trigger the download
     document.body.removeChild(a); // Remove the anchor element
