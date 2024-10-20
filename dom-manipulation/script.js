@@ -6,12 +6,66 @@ let quotes = JSON.parse(localStorage.getItem('quotes')) || [
     { text: "Do not wait to strike till the iron is hot; but make it hot by striking.", category: "Action" }
 ];
 
+// Function to simulate fetching quotes from a mock server
+async function fetchQuotesFromServer() {
+    try {
+        const response = await fetch('https://jsonplaceholder.typicode.com/posts'); // Simulating with a mock API
+        const serverQuotes = await response.json();
+
+        // Map server data to our quote structure
+        return serverQuotes.map(quote => ({
+            text: quote.body,  // Using body for quote text
+            category: quote.title // Using title for category
+        }));
+    } catch (error) {
+        console.error('Error fetching quotes from server:', error);
+        return [];
+    }
+}
+
 // Function to display quotes based on the current filter
 function displayQuotes(filteredQuotes) {
     const quoteDisplay = document.getElementById('quoteDisplay');
     quoteDisplay.innerHTML = filteredQuotes.length > 0
         ? filteredQuotes.map(q => `<p>"${q.text}"</p><p>- ${q.category}</p>`).join('')
         : "No quotes available for this category.";
+}
+
+// Function to sync local quotes with server data
+async function syncQuotesWithServer() {
+    const serverQuotes = await fetchQuotesFromServer();
+
+    // Conflict resolution: Use server data if there's a conflict
+    const serverQuotesMap = new Map(serverQuotes.map(q => [q.text, q])); // Create a map for quick lookup
+    const updatedQuotes = quotes.map(localQuote => {
+        if (serverQuotesMap.has(localQuote.text)) {
+            // If there's a server quote with the same text, we take the server one
+            return serverQuotesMap.get(localQuote.text);
+        }
+        return localQuote; // Otherwise, keep the local quote
+    });
+
+    // Check for new server quotes
+    serverQuotes.forEach(serverQuote => {
+        if (!quotes.some(localQuote => localQuote.text === serverQuote.text)) {
+            updatedQuotes.push(serverQuote); // Add new server quotes
+        }
+    });
+
+    // Update local quotes and save to local storage
+    quotes = updatedQuotes;
+    saveQuotes(); // Save updated quotes to local storage
+    populateCategories(); // Refresh categories
+    displayQuotes(quotes); // Update displayed quotes
+
+    // Notify user about the sync
+    alert("Quotes have been synced with the server!");
+}
+
+// Function to periodically sync quotes with the server
+function startSyncing() {
+    syncQuotesWithServer(); // Initial sync
+    setInterval(syncQuotesWithServer, 60000); // Sync every 60 seconds
 }
 
 // Function to filter quotes based on the selected category
@@ -30,6 +84,9 @@ function filterQuotes() {
 function populateCategories() {
     const categoryFilter = document.getElementById('categoryFilter');
     const categories = [...new Set(quotes.map(q => q.category))]; // Extract unique categories
+
+    // Clear existing options
+    categoryFilter.innerHTML = '<option value="all">All Categories</option>'; 
 
     // Populate the dropdown with categories
     categories.forEach(category => {
@@ -171,23 +228,27 @@ function importFromJsonFile(event) {
 // Attach event listeners after the DOM content is fully loaded
 document.addEventListener('DOMContentLoaded', function() {
     // Ensure the "Show New Quote" button exists and attach the event listener
-    const newQuoteButton = document.getElementById('newQuote');
+    const newQuoteButton = document.getElementById('newQuoteButton');
     if (newQuoteButton) {
         newQuoteButton.addEventListener('click', showRandomQuote);
     }
 
-    // Attach event listener for exporting quotes
-    const exportQuotesButton = document.getElementById('exportQuotesBtn');
-    if (exportQuotesButton) {
-        exportQuotesButton.addEventListener('click', exportQuotes);
-    }
+    // Initialize category filter and populate quotes
+    populateCategories();
+    displayQuotes(quotes); // Display all quotes initially
 
-    // Create the add quote form
-    createAddQuoteForm(); // Call the function to create the form
+    // Start syncing quotes with the server
+    startSyncing(); // Begin periodic syncing
 
-    // Populate the categories and restore last selected category
-    populateCategories(); // Populate categories and set last selected filter
+    // Create and display the add quote form
+    createAddQuoteForm(); // Create the add quote form
 
     // Display the first random quote when the page is loaded
     showRandomQuote(); // Show a random quote initially
+
+    // Set up file input for importing quotes
+    const importInput = document.getElementById('importInput');
+    if (importInput) {
+        importInput.addEventListener('change', importFromJsonFile);
+    }
 });
