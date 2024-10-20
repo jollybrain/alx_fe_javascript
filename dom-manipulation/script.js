@@ -67,27 +67,29 @@ function addQuote() {
 
 // Function to export quotes as JSON
 function exportQuotesAsJson() {
-    const dataStr = JSON.stringify(quotes);
-    const blob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'quotes.json';
-    a.click();
-    URL.revokeObjectURL(url); // Clean up
+    const dataStr = JSON.stringify(quotes, null, 2); // Format JSON with indentation for readability
+    const blob = new Blob([dataStr], { type: 'application/json' }); // Create a blob object for the JSON data
+    const url = URL.createObjectURL(blob); // Create a URL for the blob
+    const a = document.createElement('a'); // Create an anchor element
+    a.href = url; // Set the href to the blob URL
+    a.download = 'quotes.json'; // Set the default filename
+    document.body.appendChild(a); // Append the anchor to the body
+    a.click(); // Programmatically click the anchor to trigger the download
+    document.body.removeChild(a); // Remove the anchor from the body
+    URL.revokeObjectURL(url); // Clean up the URL object
 }
 
 // Function to import quotes from a JSON file
 function importFromJsonFile(event) {
-    const fileReader = new FileReader();
+    const fileReader = new FileReader(); // Create a FileReader object
     fileReader.onload = function(event) {
-        const importedQuotes = JSON.parse(event.target.result);
-        quotes.push(...importedQuotes);
+        const importedQuotes = JSON.parse(event.target.result); // Parse the JSON data
+        quotes.push(...importedQuotes); // Add the imported quotes to the existing array
         saveQuotes(); // Save to local storage
         alert('Quotes imported successfully!');
         showRandomQuote(); // Optionally show a random quote after importing
     };
-    fileReader.readAsText(event.target.files[0]);
+    fileReader.readAsText(event.target.files[0]); // Read the selected file as text
 }
 
 // Attach event listeners after the DOM content is fully loaded
